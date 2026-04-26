@@ -1,0 +1,112 @@
+{% extends 'halls/base.html' %}
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-between align-center">
+    <div>
+        <h2>📋 My Bookings</h2>
+        <p>View and manage your hall booking requests</p>
+    </div>
+</div>
+
+<!-- Email Search Form -->
+<div class="card mb-2">
+    <div class="card-body">
+        <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 240px;">
+                <label class="form-label">🔍 Search by Email Address</label>
+                <input type="email" name="email" class="form-control"
+                       value="{{ email }}" placeholder="Enter your email to find bookings">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+            {% if email %}
+            <a href="{% url 'my_bookings' %}" class="btn btn-secondary">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if email %}
+    {% if bookings %}
+    <div class="card">
+        <div class="card-header d-flex justify-between align-center">
+            <h3>Results for: <span style="color: #7c3aed;">{{ email }}</span></h3>
+            <span style="font-size: 0.85rem; color: #6b7280;">{{ bookings.count }} booking(s) found</span>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Hall</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td>
+                            <strong>{{ booking.event_name }}</strong>
+                            {% if booking.event_description %}
+                            <br><span class="text-muted" style="font-size: 0.8rem;">{{ booking.event_description|truncatechars:50 }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ booking.hall.name }}</td>
+                        <td>{{ booking.booking_date|date:"d M Y" }}</td>
+                        <td style="white-space: nowrap;">{{ booking.start_time|time:"h:i A" }} – {{ booking.end_time|time:"h:i A" }}</td>
+                        <td><span class="badge badge-{{ booking.user_type }}">{{ booking.get_user_type_display }}</span></td>
+                        <td>
+                            <span class="badge badge-{{ booking.status }}">
+                                {% if booking.status == 'pending' %}⏳{% elif booking.status == 'approved' %}✅{% else %}❌{% endif %}
+                                {{ booking.get_status_display }}
+                            </span>
+                            {% if booking.admin_remarks %}
+                            <br><span class="text-muted" style="font-size: 0.75rem;">{{ booking.admin_remarks }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size: 0.8rem; color: #6b7280;">{{ booking.created_at|date:"d M Y" }}</td>
+                        <td>
+                            {% if booking.status == 'pending' %}
+                            <a href="{% url 'cancel_booking' booking.id %}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Cancel this booking?')">
+                                🗑 Cancel
+                            </a>
+                            {% else %}
+                            <span class="text-muted" style="font-size: 0.8rem;">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="empty-state">
+            <div class="icon">📭</div>
+            <h3>No bookings found</h3>
+            <p>No bookings found for <strong>{{ email }}</strong>.</p>
+            <a href="{% url 'index' %}" class="btn btn-primary mt-2">Browse Halls →</a>
+        </div>
+    </div>
+    {% endif %}
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="icon">📧</div>
+        <h3>Enter your email to view bookings</h3>
+        <p>Type your email address above to find all your hall booking requests.</p>
+        {% if not user.is_authenticated %}
+        <p class="mt-1"><a href="{% url 'login' %}" style="color: #7c3aed;">Login</a> to view bookings automatically.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

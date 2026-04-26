@@ -1,0 +1,168 @@
+{% extends 'halls/base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-between align-center" style="flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h2>⚙️ Admin Dashboard</h2>
+        <p>Manage all hall bookings and requests</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+        <a href="{% url 'manage_halls' %}" class="btn btn-outline">🏛️ Manage Halls</a>
+        <a href="/admin/" class="btn btn-secondary" target="_blank">🔧 Django Admin</a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card" style="border-top: 4px solid #7c3aed;">
+        <div class="stat-number" style="color: #7c3aed;">{{ total }}</div>
+        <div class="stat-label">Total Bookings</div>
+    </div>
+    <div class="stat-card" style="border-top: 4px solid #f59e0b;">
+        <div class="stat-number" style="color: #f59e0b;">{{ pending }}</div>
+        <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card" style="border-top: 4px solid #10b981;">
+        <div class="stat-number" style="color: #10b981;">{{ approved }}</div>
+        <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card" style="border-top: 4px solid #ef4444;">
+        <div class="stat-number" style="color: #ef4444;">{{ rejected }}</div>
+        <div class="stat-label">Rejected</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-2">
+    <div class="card-body">
+        <form method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end;">
+            <div style="flex: 2; min-width: 180px;">
+                <label class="form-label" style="font-size: 0.8rem;">🔍 Search</label>
+                <input type="text" name="search" class="form-control" value="{{ search }}"
+                       placeholder="Event, name, or email...">
+            </div>
+            <div style="min-width: 130px;">
+                <label class="form-label" style="font-size: 0.8rem;">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>⏳ Pending</option>
+                    <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>✅ Approved</option>
+                    <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>❌ Rejected</option>
+                </select>
+            </div>
+            <div style="min-width: 130px;">
+                <label class="form-label" style="font-size: 0.8rem;">User Type</label>
+                <select name="user_type" class="form-control">
+                    <option value="">All Types</option>
+                    <option value="student" {% if user_type_filter == 'student' %}selected{% endif %}>Student</option>
+                    <option value="faculty" {% if user_type_filter == 'faculty' %}selected{% endif %}>Faculty</option>
+                </select>
+            </div>
+            <div style="min-width: 130px;">
+                <label class="form-label" style="font-size: 0.8rem;">Hall</label>
+                <select name="hall" class="form-control">
+                    <option value="">All Halls</option>
+                    {% for hall in halls %}
+                    <option value="{{ hall.id }}" {% if hall_filter == hall.id|stringformat:"s" %}selected{% endif %}>
+                        {{ hall.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="min-width: 120px;">
+                <label class="form-label" style="font-size: 0.8rem;">Date Range</label>
+                <select name="date_range" class="form-control">
+                    <option value="">Any Date</option>
+                    <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                    <option value="week" {% if date_filter == 'week' %}selected{% endif %}>Past 7 Days</option>
+                    <option value="month" {% if date_filter == 'month' %}selected{% endif %}>This Month</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Apply</button>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Reset</a>
+        </form>
+    </div>
+</div>
+
+<!-- Bookings Table -->
+<div class="card">
+    <div class="card-header d-flex justify-between align-center">
+        <h3>📋 Booking Requests</h3>
+        <span style="font-size: 0.85rem; color: #6b7280;">{{ bookings.count }} record(s)</span>
+    </div>
+    {% if bookings %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Event</th>
+                    <th>Hall</th>
+                    <th>Requested By</th>
+                    <th>Type</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td style="color: #9ca3af; font-size: 0.8rem;">{{ booking.id }}</td>
+                    <td>
+                        <strong>{{ booking.event_name }}</strong>
+                        <br><span class="text-muted" style="font-size: 0.8rem;">{{ booking.event_description|truncatechars:40 }}</span>
+                    </td>
+                    <td>{{ booking.hall.name }}</td>
+                    <td>
+                        <strong>{{ booking.user_name }}</strong>
+                        <br><span style="font-size: 0.8rem; color: #6b7280;">{{ booking.user_email }}</span>
+                    </td>
+                    <td><span class="badge badge-{{ booking.user_type }}">{{ booking.get_user_type_display }}</span></td>
+                    <td style="font-size: 0.85rem; white-space: nowrap;">
+                        📅 {{ booking.booking_date|date:"d M Y" }}<br>
+                        🕒 {{ booking.start_time|time:"h:i A" }} – {{ booking.end_time|time:"h:i A" }}
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ booking.status }}">
+                            {% if booking.status == 'pending' %}⏳{% elif booking.status == 'approved' %}✅{% else %}❌{% endif %}
+                            {{ booking.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="font-size: 0.8rem; color: #6b7280; white-space: nowrap;">{{ booking.created_at|date:"d M Y" }}</td>
+                    <td>
+                        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                            {% if booking.status == 'pending' %}
+                            <form method="POST" action="{% url 'approve_booking' booking.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm"
+                                        onclick="return confirm('Approve this booking?')">✅ Approve</button>
+                            </form>
+                            <form method="POST" action="{% url 'reject_booking' booking.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Reject this booking?')">❌ Reject</button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted" style="font-size: 0.8rem;">
+                                {% if booking.status == 'approved' %}✅ Approved{% else %}❌ Rejected{% endif %}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📭</div>
+        <h3>No bookings found</h3>
+        <p>No bookings match your current filters.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

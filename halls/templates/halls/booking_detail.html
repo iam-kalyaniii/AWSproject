@@ -1,0 +1,56 @@
+{% extends 'halls/base.html' %}
+{% block title %}Booking Detail{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <div class="page-header d-flex justify-between align-center">
+        <h2>📋 Booking Detail</h2>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">← Back</a>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-between align-center">
+            <h3>{{ booking.event_name }}</h3>
+            <span class="badge badge-{{ booking.status }} " style="font-size: 0.9rem; padding: 0.4rem 1rem;">
+                {% if booking.status == 'pending' %}⏳{% elif booking.status == 'approved' %}✅{% else %}❌{% endif %}
+                {{ booking.get_status_display }}
+            </span>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div>
+                    <p class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Booked By</p>
+                    <p><strong>{{ booking.user_name }}</strong></p>
+                    <p style="font-size: 0.9rem;">{{ booking.user_email }}</p>
+                    <p><span class="badge badge-{{ booking.user_type }}">{{ booking.get_user_type_display }}</span></p>
+                </div>
+                <div>
+                    <p class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Hall</p>
+                    <p><strong>{{ booking.hall.name }}</strong></p>
+                    <p style="font-size: 0.9rem;">Capacity: {{ booking.hall.capacity }} people</p>
+                </div>
+                <div>
+                    <p class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Date & Time</p>
+                    <p><strong>{{ booking.booking_date|date:"d M Y, l" }}</strong></p>
+                    <p style="font-size: 0.9rem;">{{ booking.start_time|time:"h:i A" }} → {{ booking.end_time|time:"h:i A" }}</p>
+                </div>
+                <div>
+                    <p class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Submitted</p>
+                    <p><strong>{{ booking.created_at|date:"d M Y" }}</strong></p>
+                    <p style="font-size: 0.9rem;">{{ booking.created_at|time:"h:i A" }}</p>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+                <p class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Event Description</p>
+                <p style="margin-top: 0.5rem;">{{ booking.event_description }}</p>
+            </div>
+            {% if booking.admin_remarks %}
+            <div style="margin-top: 1rem; padding: 1rem; background: #f9fafb; border-radius: 8px;">
+                <p class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Admin Remarks</p>
+                <p style="margin-top: 0.5rem;">{{ booking.admin_remarks }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

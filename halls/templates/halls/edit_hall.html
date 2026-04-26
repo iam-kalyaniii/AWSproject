@@ -1,0 +1,49 @@
+{% extends 'halls/base.html' %}
+{% block title %}Edit Hall{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="page-header">
+        <h2>✏️ Edit Hall: {{ hall.name }}</h2>
+        <p>Update hall details</p>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Hall Name <span class="required">*</span></label>
+                    <input type="text" name="name" class="form-control" required value="{{ hall.name }}">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Capacity <span class="required">*</span></label>
+                        <input type="number" name="capacity" class="form-control" required min="1" value="{{ hall.capacity }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Location <span class="required">*</span></label>
+                        <input type="text" name="location" class="form-control" required value="{{ hall.location }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Facilities <span class="required">*</span></label>
+                    <textarea name="facilities" class="form-control" rows="3" required>{{ hall.facilities }}</textarea>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <input type="checkbox" name="is_available" id="is_available"
+                           {% if hall.is_available %}checked{% endif %}
+                           style="width: 18px; height: 18px; cursor: pointer;">
+                    <label for="is_available" class="form-label" style="margin: 0; cursor: pointer;">
+                        Hall is Available for Booking
+                    </label>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">💾 Update Hall</button>
+                    <a href="{% url 'manage_halls' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

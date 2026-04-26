@@ -1,0 +1,128 @@
+{% extends 'halls/base.html' %}
+{% block title %}Book {{ hall.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>📅 Book {{ hall.name }}</h2>
+    <p>Fill in the details below to submit your booking request</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 300px 1fr; gap: 1.5rem; align-items: start;">
+    <!-- Hall Info Sidebar -->
+    <div class="card">
+        <div style="background: linear-gradient(135deg, #7c3aed, #4c1d95); padding: 1.5rem; text-align: center;">
+            <div style="font-size: 2.5rem;">🏢</div>
+            <h3 style="color: white; margin-top: 0.5rem;">{{ hall.name }}</h3>
+        </div>
+        <div class="card-body">
+            <h4 style="margin-bottom: 1rem; color: #4c1d95;">Hall Information</h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: #6b7280; font-weight: 600;">Capacity</div>
+                    <div style="font-weight: 500;">👥 {{ hall.capacity }} people</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: #6b7280; font-weight: 600;">Location</div>
+                    <div style="font-weight: 500;">📍 {{ hall.location }}</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: #6b7280; font-weight: 600;">Facilities</div>
+                    <div style="font-weight: 500;">🔧 {{ hall.facilities }}</div>
+                </div>
+            </div>
+            <div style="margin-top: 1rem; padding: 0.75rem; background: #fef3c7; border-radius: 8px; font-size: 0.85rem; color: #92400e;">
+                ⚠️ All bookings are subject to admin approval. You will be notified via email.
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="card">
+        <div class="card-header">
+            <h3>📝 Booking Details</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" id="bookingForm" novalidate>
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Your Name <span class="required">*</span></label>
+                        <input type="text" name="user_name" class="form-control" required
+                               value="{{ initial.user_name|default:'' }}" placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address <span class="required">*</span></label>
+                        <input type="email" name="user_email" class="form-control" required
+                               value="{{ initial.user_email|default:'' }}" placeholder="your@email.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">User Type <span class="required">*</span></label>
+                    <select name="user_type" class="form-control" required>
+                        <option value="">-- Select Type --</option>
+                        <option value="student" {% if initial.user_type == 'student' %}selected{% endif %}>Student</option>
+                        <option value="faculty" {% if initial.user_type == 'faculty' %}selected{% endif %}>Faculty</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Event Name <span class="required">*</span></label>
+                    <input type="text" name="event_name" class="form-control" required
+                           placeholder="e.g. Tech Fest 2025, Workshop on AI">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Event Description <span class="required">*</span></label>
+                    <textarea name="event_description" class="form-control" rows="3" required
+                              placeholder="Describe your event briefly..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Booking Date <span class="required">*</span></label>
+                    <input type="date" name="booking_date" class="form-control" id="booking_date" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Start Time <span class="required">*</span></label>
+                        <input type="time" name="start_time" class="form-control" id="start_time" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Time <span class="required">*</span></label>
+                        <input type="time" name="end_time" class="form-control" id="end_time" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                        📤 Submit Booking
+                    </button>
+                    <a href="{% url 'index' %}" class="btn btn-secondary">✖ Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Set minimum date to today
+    const dateInput = document.getElementById('booking_date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+
+    // Validate end time > start time
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        const start = document.getElementById('start_time').value;
+        const end = document.getElementById('end_time').value;
+        if (start && end && start >= end) {
+            e.preventDefault();
+            alert('⚠️ End time must be after start time!');
+        }
+    });
+</script>
+{% endblock %}

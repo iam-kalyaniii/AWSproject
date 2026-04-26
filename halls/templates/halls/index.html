@@ -1,0 +1,60 @@
+{% extends 'halls/base.html' %}
+{% block title %}Available Halls{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🏛️ Available Halls</h2>
+    <p>Browse and book halls for your events at ZIBACAR</p>
+</div>
+
+{% if halls %}
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+    {% for hall in halls %}
+    <div class="card" style="transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow=''">
+        <!-- Hall Color Header -->
+        <div style="background: linear-gradient(135deg, #7c3aed, #4c1d95); padding: 2rem; text-align: center;">
+            <div style="font-size: 3rem;">🏢</div>
+            <h3 style="color: white; margin-top: 0.5rem; font-size: 1.2rem;">{{ hall.name }}</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.9rem;">
+                    <span>👥</span>
+                    <span><strong>Capacity:</strong> {{ hall.capacity }} people</span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.9rem;">
+                    <span>📍</span>
+                    <span><strong>Location:</strong> {{ hall.location }}</span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.9rem;">
+                    <span>🔧</span>
+                    <span><strong>Facilities:</strong> {{ hall.facilities }}</span>
+                </div>
+            </div>
+            <a href="{% url 'book_hall' hall.id %}" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                📅 Book This Hall
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state card">
+    <div class="icon">🏛️</div>
+    <h3>No Halls Available</h3>
+    <p>There are currently no halls available for booking. Please check back later.</p>
+</div>
+{% endif %}
+
+{% if not user.is_authenticated %}
+<div class="card mt-3" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); border: none;">
+    <div class="card-body text-center">
+        <h3 style="color: #4c1d95; margin-bottom: 0.5rem;">🎓 Join ZIBACAR Portal</h3>
+        <p style="color: #5b21b6; margin-bottom: 1rem;">Register to manage your bookings, get email notifications, and track your reservations easily.</p>
+        <a href="{% url 'register' %}" class="btn btn-primary">Register Now →</a>
+        <span style="margin: 0 0.5rem; color: #7c3aed;">or</span>
+        <a href="{% url 'login' %}" class="btn btn-outline">Login</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

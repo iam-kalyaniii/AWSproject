@@ -1,0 +1,68 @@
+{% extends 'halls/base.html' %}
+{% block title %}Manage Halls{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-between align-center">
+    <div>
+        <h2>🏛️ Manage Halls</h2>
+        <p>Add, edit, or remove halls from the system</p>
+    </div>
+    <a href="{% url 'add_hall' %}" class="btn btn-primary">➕ Add New Hall</a>
+</div>
+
+<div class="card">
+    {% if halls %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hall Name</th>
+                    <th>Capacity</th>
+                    <th>Location</th>
+                    <th>Facilities</th>
+                    <th>Available</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hall in halls %}
+                <tr>
+                    <td style="color: #9ca3af; font-size: 0.8rem;">{{ hall.id }}</td>
+                    <td><strong>{{ hall.name }}</strong></td>
+                    <td>👥 {{ hall.capacity }}</td>
+                    <td>📍 {{ hall.location }}</td>
+                    <td style="max-width: 200px; font-size: 0.85rem;">{{ hall.facilities }}</td>
+                    <td>
+                        {% if hall.is_available %}
+                        <span class="badge badge-approved">✅ Yes</span>
+                        {% else %}
+                        <span class="badge badge-rejected">❌ No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <a href="{% url 'edit_hall' hall.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                            <a href="{% url 'delete_hall' hall.id %}" class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete hall {{ hall.name }}?')">🗑 Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">🏛️</div>
+        <h3>No halls added yet</h3>
+        <p>Add your first hall to get started.</p>
+        <a href="{% url 'add_hall' %}" class="btn btn-primary mt-2">➕ Add Hall</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="mt-2">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">← Back to Dashboard</a>
+</div>
+{% endblock %}

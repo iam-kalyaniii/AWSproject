@@ -1,0 +1,45 @@
+{% extends 'halls/base.html' %}
+{% block title %}Add Hall{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="page-header">
+        <h2>➕ Add New Hall</h2>
+        <p>Fill in the details to add a new hall</p>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Hall Name <span class="required">*</span></label>
+                    <input type="text" name="name" class="form-control" required
+                           placeholder="e.g. Main Auditorium">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Capacity <span class="required">*</span></label>
+                        <input type="number" name="capacity" class="form-control" required min="1"
+                               placeholder="e.g. 500">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Location <span class="required">*</span></label>
+                        <input type="text" name="location" class="form-control" required
+                               placeholder="e.g. Main Building, Ground Floor">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Facilities <span class="required">*</span></label>
+                    <textarea name="facilities" class="form-control" rows="3" required
+                              placeholder="e.g. Projector, AC, Sound System, Stage, Wi-Fi"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">💾 Save Hall</button>
+                    <a href="{% url 'manage_halls' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
