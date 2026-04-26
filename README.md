@@ -27,7 +27,7 @@ This will:
 python manage.py runserver
 ```
 
-Open **http://127.0.0.1:8000/** in your browser.
+Open **http://13.233.29.131/** in your browser.
 
 ---
 
